@@ -1,0 +1,93 @@
+% ----- preamble.tex -----
+% \input{preamble.tex} should be included in all note files before '\begin{document}'
+% \lecture{<lectureNumber>: <lectureTopic>}{<mm/dd/yyyy>}{<lecturerName>}{<authorName>}
+
+\hbadness=10000
+\vbadness=10000
+
+% page size settings
+\setlength{\textheight}{8.5in}
+\setlength{\textwidth}{6.0in}
+\setlength{\headheight}{0in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\oddsidemargin}{-.5in}
+
+% paragraph spacing/indenting settings
+\setlength\parindent{0pt}
+\setlength\parskip{2.5pt}
+
+% imported packages
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mdframed} % for boxing
+\usepackage{graphicx} % for inserting images
+\graphicspath{ {./imgs/} }
+
+\usepackage{diagbox} % backslash for tabular/tables
+\usepackage{booktabs} % enhances quality of table presentation
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,trees,calc}
+
+% ----- \tableofcontents PAGE LINKING (without blue highlight) -----
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+% ----- VARIABLE RE-DEFINITIONS -----
+\def\epsilon{\varepsilon}
+\def\phi{\varphi}
+
+
+% ----- TODO: MAKE EVERY NEW SECTION START ON NEW PAGE EXCLUDING TOC -----
+% \let\oldsection\section
+% \renewcommand{\section}{\newpage\oldsection}
+
+
+% ----- CUSTOM COMMANDS -----
+\newcommand{\handout}[5]{
+    % \renewcommand{\thepage}{#1-\arabic{page}}
+    \noindent
+    \begin{center}
+        \framebox{
+            \vbox{
+                \hbox to 5.78in {{\bf CS 4510: Automata and Complexity}\hfill #2}
+                \vspace{4mm}
+                \hbox to 5.78in {{\Large \hfill #5  \hfill}}
+                \vspace{2mm}
+                \hbox to 5.78in {{\it #3 \hfill #4}}
+            }
+        }
+   \end{center}
+   \vspace*{4mm}
+}
+
+\newcommand{\lecture}[4]{\handout{#1}{#2}{Lecturer: #3}{Author: #4}{Lecture #1}}
+
+% keeps contents of the same theorem on the same page
+\newcommand{\blocktheorem}[1]{
+    \csletcs{old#1}{#1}
+    \csletcs{endold#1}{end#1}
+    \RenewDocumentEnvironment{#1}{o}{
+        % \par\addvspace{cm}
+        \noindent\begin{minipage}{\textwidth}
+        \IfNoValueTF{##1}{\csuse{old#1}}{\csuse{old#1}[##1]}}{\csuse{endold#1}
+        \end{minipage}
+        \par\addvspace{0.75cm}
+    }
+}
+\raggedbottom
+
+\theoremstyle{definition}
+\newtheorem{example}{Example} % use for example problems
+\newmdtheoremenv{definition}{Definition} % use for definitions
+\newtheorem{theorem}{Theorem} % use for theorems
+\newtheorem{corollary}{Corollary} % use for theorems
+
+\blocktheorem{example}
+\blocktheorem{definition}
+\blocktheorem{theorem}
+\blocktheorem{corollary}

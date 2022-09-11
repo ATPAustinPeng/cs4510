@@ -1,0 +1,87 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{preamble.tex}
+
+\begin{document}
+\lecture{5: NFA To DFA}{09/06/2022}{Zvi Galil}{Austin Peng}
+\tableofcontents
+
+% TODO: how do i fix this to have new page before every section, but not before the table of contents
+\AddToHook{cmd/section/before}{\newpage}
+
+\section{Equivalence Of NFAs and DFAs (cont.)}
+\begin{theorem}
+    Every NFA has an equivalent DFA.
+
+    \begin{proof}
+        Let $N=(Q,\Sigma,\delta,q_0, F)$ be the NFA recognizing some language $A$. We construct DFA $M=(Q',\Sigma,\delta',q'_0,F')$ recognizing $A$.
+        Before doing the full construction, first consider the easier case when $N$ has no $\epsilon$ arrows. We will take $\epsilon$ into account later.
+
+        \begin{enumerate}
+            \item $Q'=\mathcal{P}(Q)$ (the set of subsets of $Q$)
+            \subitem Every state of $M$ is a set of states of $N$.
+            \item $\Sigma$ (the alphabet) doesn't change
+            \item For $R\in Q'$, and $a\in\Sigma$, let $\delta'(R,a)=\{q\in Q\mid q\in\delta(r,a)\text{ for some }r\in R\}$
+            \subitem If $R$ is a state of $M$, it is also a set of states of $N$. When $M$ reads a symbol $a$ in state $R$, it shows where $A$ takes each state in $R$. Because each state may go to a set of states, we take the union of all these sets.
+            $$\delta'(R,a)=\bigcup\limits_{r\in R}\delta(r,a)$$
+            \item $q'_0=\{q_0\}$
+            \subitem $M$ starts in the state corresponding to the collection containing just the start state of $N$.
+            \item $F'=\{R\in Q'\mid R\text{ contains an accepting state of }N\}$
+            \subitem The machine $M$ accepts if one of the possible states that $N$ could be in at this point is an accepting state.
+        \end{enumerate}
+
+        Now consider the $\epsilon$ arrows. For any state $R$ of $M$, we define $E(R)$ to be the collection of states that can be reached from members of $R$ by going only along $\epsilon$ arrows, including members of $R$ themselves.
+        Formally, for $R\subseteq Q$, let $$E(R)=\{q\mid q\text{ can be reached from $R$ by traveling along 0 or more $\epsilon$ arrows}\}$$
+        Then we modify the transition function of $M$ to place additional fingers on all states that can be reached by going along $\epsilon$ arrows after every step. Replacing $\delta(r,a)$ by $E(\delta(r,a))$ achieves this.
+        Finally, we need to modify the start state of $M$ to move the fingers initially to all possible states that can be reached from the start state of $N$ along the $\epsilon$ arrows. \\
+        
+        The changes mentioned above to account for $\epsilon$ arrows are shown below:
+        \begin{enumerate}
+            \setcounter{enumi}{2}
+            \item $\delta'(R,a)=\{q\in Q\mid q\in E(\delta(r,a))\text{ for some }r\in R\}$
+            \item $q'_0=E(\{q_0\})$
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+\begin{example}
+    Consider the following NFA $N$:
+
+    \begin{tikzpicture}[node distance={2.5cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state,accepting] (0) [right of=input] {$1$};
+        \node[state] (1) [below of=0] {$2$};
+        \node[state] (2) [right of=1] {$3$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \draw[->] (0) to node[left] {$b$} (1);
+        \draw[->,out=295,in=155] (0) to node[above] {$\epsilon$} (2);
+
+        % q_1
+        \path (1) edge [loop left] node {$a$} (1);
+
+        % q_2
+        \draw[->,out=115,in=335] (2) to node[left] {0} (0);
+        \draw[->] (1) to node[below] {$a,b$} (2);
+    \end{tikzpicture}
+
+    Note that the DFA will have 8 states, one for each subset of the states of $N$. The DFA and its transitions are shown below: \\
+
+    \includegraphics[width=\linewidth]{lecture05-dfa-equiv-of-nfa.png}
+
+    The NFA's start state is $1$, so the DFA's start state is $E(\{1\})=\{1,3\}$ (the set of states reachable from $1$ by travelling along $\epsilon$ arrows and $1$ itself).
+    The NFA's accepting state is $1$, so the DFA's accepting states are all sets of states that include $1$: $\{\{1\}, \{1,2\},\{1,3\},\{1,2,3\}\}$ \\
+
+    As for $D$'s transition function, each of $D$'s states goes to one place on input $a$ and one place on input $b$ (by definition of DFA). We will illustrate a few.
+
+    \begin{itemize}
+        \item in $D$, state $\{2\}$ goes to $\{2,3\}$ on input $a$ because in $N$, state $2$ goes to both $2$ and $3$ on input $a$.
+        \item in $D$, state $\{1\}$ goes to $\emptyset$ on input $a$ because no $a$ arrows exit it.
+        \item in $D$, state $\{1,2\}$ goes to $\{2,3\}$ on input $a$ because in $N$, state $1$ goes nowhere on input $a$ and state $2$ goes to both $2$ and $3$ on input $a$
+    \end{itemize}
+
+    NFA with $n$ states $\rightarrow$ DFA with $2^n$ states.
+\end{example}
+
+\end{document}

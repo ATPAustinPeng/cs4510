@@ -1,0 +1,226 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{preamble.tex}
+
+\begin{document}
+\lecture{2: Deterministic Finite Automata}{08/25/2022}{Zvi Galil}{Austin Peng}
+\tableofcontents
+
+% TODO: how do i fix this to have new page before every section, but not before the table of contents
+\AddToHook{cmd/section/before}{\newpage}
+
+\section{DFA Examples}
+\begin{example} $M_2$
+
+    \begin{tikzpicture}[node distance={3cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state] (0) [right of=input] {$q_0$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \path (0) edge [loop above] node {0,1} (0);
+    \end{tikzpicture}
+
+    $L(M_1)=\phi$. The language is empty because there are no accepting states.
+\end{example}
+
+\begin{example} $M_2$
+
+    \begin{tikzpicture}[node distance={3cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state,accepting] (0) [right of=input] {$q_0$};
+        \node[state] (1) [right of=0] {$q_1$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \draw[->] (0) to node[above] {0,1} (1);
+
+        % q_1
+        \path (1) edge [loop above] node {0,1} (1);
+    \end{tikzpicture}
+
+    $L(M_2)=\{\epsilon\}$.
+    
+    Note the difference between $M_1$ and $M_2$. They recognize different langauges.
+\end{example}
+
+\begin{example} $M_3$
+
+    \begin{tikzpicture}[node distance={3cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state] (0) [right of=input] {$q_0$};
+        \node[state,accepting] (1) [right of=0] {$q_1$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \path (0) edge [loop above] node {0} (0);
+        \draw[->,out=15,in=165] (0) to node[above] {1} (1);
+
+        % q_1
+        \path (1) edge [loop above] node {1} (1);
+        \draw[->,out=195,in=345] (1) to node[below] {0} (0);
+    \end{tikzpicture}
+
+    $L(M_3)=\{w|w\text{ ends in a 1}\}$
+\end{example}
+
+\begin{example} $M_4$
+
+    \begin{tikzpicture}[node distance={3cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state,accepting] (0) [right of=input] {$q_0$};
+        \node[state] (1) [right of=0] {$q_1$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \path (0) edge [loop above] node {0} (0);
+        \draw[->,out=15,in=165] (0) to node[above] {1} (1);
+
+        % q_1
+        \path (1) edge [loop above] node {1} (1);
+        \draw[->,out=195,in=345] (1) to node[below] {0} (0);
+    \end{tikzpicture}
+
+    $L(M_4)=\{\epsilon\cup\text{ strings ending with 0}\}$. Note this is the complement of $L(M_3)$.
+\end{example}
+
+\begin{example} $M_5$
+
+    \begin{tikzpicture}[node distance={2.5cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state] (0) [right of=input] {$S$};
+        \node[state,accepting] (1) [above right of=0] {$r_1$};
+        \node[state] (2) [right of=1] {$r_2$};
+        \node[state,accepting] (3) [below right of=0] {$q_1$};
+        \node[state] (4) [right of=3] {$q_2$};
+
+        % S
+        \draw[->] (input) -- (0);
+        \draw[->] (0) to node[above] {b} (1);
+        \draw[->] (0) to node[above] {a} (3);
+
+        % r_1
+        \path (1) edge [loop above] node {b} (1);
+        \draw[->,out=25,in=155] (1) to node[above] {a} (2);
+
+        % r_2
+        \path (2) edge [loop above] node {a} (2);
+        \draw[->,out=205,in=335] (2) to node[above] {b} (1);
+
+        % q_1
+        \path (3) edge [loop below] node {a} (3);
+        \draw[->,out=25,in=155] (3) to node[above] {b} (4);
+
+        % q_2
+        \path (4) edge [loop below] node {b} (4);
+        \draw[->,out=205,in=335] (4) to node[above] {a} (3);
+        
+    \end{tikzpicture}
+
+    $L(M_5)$ is the set of all strings that start and end with the same character.
+    Note: $\Sigma=\{a,b\}$
+\end{example}
+
+\section{Applications Of DFA}
+\subsection{Modular Arithmetic}
+
+Let $w\in\{0,1\}^*$ (aka any binary string). We define $\overline{w}$ to be the value of the string as a binary number.
+Then, for $w\in\{0,1\}^*$ and $a\in\{0,1\}$, we have the following properties:
+
+\begin{itemize}
+    \item $\overline{a}=a$
+    \item $\overline{wa}=2\overline{w}+a$
+\end{itemize}
+
+We can use a DFA to recognize modular arithmetic.
+For the following example, we will consider the following transition table of $\overline{w}\text{ mod }3$.
+Note that the start state of our transition table is marked with an arrow.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|*{3}{c|}}\hline
+    \backslashbox{$\overline{w}$ mod 3}{input $a$}
+        & $\overline{w0}\text{ mod }3$ & $\overline{w1}\text{ mod }3$ & state\\\hline
+        0 (state $q_0$) & 0 & 1 & $\rightarrow q_0$ \\
+        1 (state $q_1$) & 2 & 0 & $q_1$ \\
+        2 (state $q_2$) & 1 & 2 & $q_2$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+If we set the accepting state to be $q_1$ then this DFA will accept exactly those strings which are $\equiv 1\text{ modulo }3$ (aka congruent to 1 modulo 3).
+
+\subsection{String Matching}
+\subsubsection{Recognizing A Single String}
+For a string $w$, we can create a DFA for the language $L_w\{w\}$ as follows:
+
+\begin{tikzpicture}[node distance={2.5cm}, semithick, main/.style = {draw, circle}]
+    \node[name=input] {};
+    \node[state] (0) [right of=input] {$q_0$};
+    \node[state] (1) [right of=0] {$q_1$};
+    \node[state] (2) [right of=1] {$...$};
+    \node[state] (3) [right of=2] {$q_{n-1}$};
+    \node[state,accepting] (4) [right of=3] {$q_n$};
+    \node[state] (5) [below of=2] {bad};
+
+
+    % q_0
+    \draw[->] (input) -- (0);
+    \draw[->] (0) to node[above] {$w_1$} (1);
+    \draw[->] (0) to node[left] {$\lnot w_1$} (5);
+
+    % q_1
+    % \path (1) edge [loop above] node {b} (1);
+    % \draw[->,out=25,in=155] (1) to node[above] {a} (2);
+    \draw[->] (1) to node[above] {$w_2$} (2);
+    \draw[->] (1) to node[left] {$\lnot w_2$} (5);
+
+    % ...
+    % \path (2) edge [loop above] node {a} (2);
+    % \draw[->,out=205,in=335] (2) to node[above] {b} (1);
+    \draw[->] (2) to node[above] {$...$} (3);
+    \draw[->] (2) to node[right] {$...$} (5);
+
+    % q_{n-1}
+    % \path (3) edge [loop below] node {a} (3);
+    % \draw[->,out=25,in=155] (3) to node[above] {b} (4);
+    \draw[->] (3) to node[above] {$w_{n-1}$} (4);
+    \draw[->] (3) to node[right] {$\lnot w_{n-1}$} (5);
+ 
+\end{tikzpicture}
+
+\newpage
+\subsubsection{Recognizing A Suffix}
+Let $L'_w$ be the set of strings that end in $w$.
+An example string from this language is $1101001\in L'_{001}$, because it ends in $001$.
+We can use the following transition table:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|*{2}{c|}}\hline
+    \backslashbox{$Q$}{input}
+        & $0$ & $1$ \\\hline
+        $\rightarrow$ bad & $q_0$ & bad \\
+        $q_0$ & $q_{00}$ & bad \\
+        $q_{00}$ & $q_{00}$ & $q_{001}$ \\
+        $q_{001}$ & $q_0$ & bad \\
+        \hline
+    \end{tabular}
+\end{table}
+
+We define $q_{001}$ to be our only accepting state.
+
+In the general case, we need to keep track of the longest suffix seen so far. We will use the states $\{\text{bad},q_0,...,q_n\}$.
+
+The DFA will be in state $q_i$ if $w_1...w_i$ is the longest suffix of the input seen so far that is a prefix of $w$.
+If we are in state $q_i$, then we have to see $n-i$ more symbols until we find the string.
+The transition function is defined as follows:
+
+\begin{itemize}
+    \item $\delta(q_{i-1},w_i)=q_i$
+    \item $\delta(q_{i-1},a\neq w_i)=q_j$, where $w_1w_2...w_j$ is the largest prefix of $w$ that is a suffix of the current input (including $a$).
+\end{itemize}
+
+
+
+\end{document}

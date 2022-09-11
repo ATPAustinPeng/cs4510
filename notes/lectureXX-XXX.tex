@@ -1,0 +1,14 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{preamble.tex}
+
+\begin{document}
+\lecture{lectureNumber: lectureTitle}{mm/dd/yyyy}{lecturerName}{authorName}
+\tableofcontents
+
+% TODO: how do i fix this to have new page before every section, but not before the table of contents
+\AddToHook{cmd/section/before}{\newpage}
+
+% START DOCUMENT HERE!!!!!!!
+
+\end{document}

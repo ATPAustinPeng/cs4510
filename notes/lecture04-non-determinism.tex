@@ -1,0 +1,220 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{preamble.tex}
+
+\begin{document}
+\lecture{4: Non-Determinism}{09/01/2022}{Zvi Galil}{Austin Peng}
+\tableofcontents
+
+% TODO: how do i fix this to have new page before every section, but not before the table of contents
+\AddToHook{cmd/section/before}{\newpage}
+
+\section{Non-Determinism}
+\begin{itemize}
+    \item Non-determinism looks strange and impractical, and in some sense it is, but it is very important.
+    \item You will find out at the end of the course why the most important problem in computer science involves non-determinism and non-deterministic computation.
+    \item Our definition of finite automaton so far is deterministic. This means, when we are at some state, and we see a symbol, we go to exactly one other state. Also, from every state, the transition is well defined for every symbol in the alphabet.
+    \item 2 main differences between a non-deterministic finite automaton (NFA) and deterministic finite automaton (DFA).
+    \begin{itemize}
+        \item from a state, when we see a symbol, we can go to 0 or more states (in a DFA, when we see a symbol, we go to exactly 1 state)
+        \item we have "$\epsilon$"-transitions, which are transitions that we can take without seeing any symbol.
+    \end{itemize}
+    \item The starting, accepting, and states all work the same. The big difference is in $\delta$ (transition function).
+\end{itemize}
+
+\begin{example}
+    Consider the following NFA:
+    
+    \begin{tikzpicture}[node distance={2.5cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state] (0) [right of=input] {$q_0$};
+        \node[state] (1) [right of=0] {$q_1$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \path (0) edge [loop above] node {0,1} (0);
+        \draw[->] (0) to node[above] {1} (1);
+    \end{tikzpicture}
+    \begin{itemize}
+        \item If we are at $q_0$ and see a $1$, we do not have to go to $q_1$.
+        \item Rather, think of it like we are in many states at once. (referred to as "guessing")
+        \item In other words, we say that from $q_0$, we can go to several states.
+        \item The automaton is a genius and knows where to go. It has the foresight to think, "I see $1$ several times, I stay at $q_0$, but I will transition to $q_1$ at just the right time."
+        \item The choice of the $1$ to transition is because the automaton can see the future.
+        \item Note: this is abstract and not practical
+    \end{itemize}
+\end{example}
+
+\begin{example}
+    Consider the following NFA:
+    
+    \begin{tikzpicture}[node distance={2.5cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state] (0) [right of=input] {$q_0$};
+        \node[state] (1) [right of=0] {$q_1$};
+        \node[state] (2) [right of=1] {$q_2$};
+        \node[state,accepting] (3) [right of=2] {$q_3$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \path (0) edge [loop above] node {0,1} (0);
+        \draw[->] (0) to node[above] {1} (1);
+
+        % q_1
+        \draw[->] (1) to node[above] {0,$\epsilon$} (2);
+
+        % q_2
+        \draw[->] (2) to node[above] {1} (3);
+
+        % q_3
+        \path (3) edge [loop above] node {0,1} (3);
+    \end{tikzpicture}
+    
+    Suppose at $q_1$ and we see a 1. There is no transition with 1, so we "abort". At $q_1$ we see $\epsilon$ and move to $q_2$.
+    Note: we always see $\epsilon$, so without doing anything at $q_1$, we "slide" to $q_2$. \\
+
+    Below is a transition table describing the NFA. \\
+
+    \begin{tabular}{|l|*{4}{c|}}\hline
+    \backslashbox{$Q$}{symbol}
+        & $0$ & $1$ & $\epsilon$ \\\hline
+        $\rightarrow q_0$ & $q_0$ & $q_0,q_1$ & - \\
+        $q_1$ & $q_2$ & - & $q_2$ \\
+        $q_2$ & - & $q_3$ & - \\
+        $q_3$ & $q_3$ & $q_3$ & - \\
+        \hline
+    \end{tabular} \\
+
+    Think of split timelines every time we have to go to multiple states. From $q_0$ seeing $1$, we can go back to $q_0$ or go to $q_1$.
+    Note that we accept the input if at least one of the timelines ends at an accepting state. \\
+    
+    Below is a decision parse tree for input $x=01011$ \\ % $x=010110$. \\
+
+    \begin{tikzpicture}[semithick, main/.style = {draw, circle}]
+        \node[state]{$q_0$}
+            child {node[state]{$q_0$}
+                child{node[state]{$q_0$}
+                    child{node[state]{$q_0$}
+                        child{node[state]{$q_0$}
+                            child{node[state]{$q_0$}
+                                % child{node[state]{$q_0$}}
+                            }
+                            child{node[state]{$q_1$}
+                                % child{node[state]{$q_2$}}
+                            }
+                            child{node[state]{$q_2$}}
+                        }
+                        child{node[state]{$q_1$}}
+                        child{node[state]{$q_2$}
+                            child{node[state,accepting]{$q_3$}
+                                % child{node[state,accepting]{$q_3$}}
+                            }
+                        }
+                    }
+                }
+                child[missing]
+                child{node[state]{$q_1$}
+                    child{node[state]{$q_2$}
+                        child{node[state,accepting]{$q_3$}
+                            child{node[state,accepting]{$q_3$}
+                                % child{node[state,accepting]{$q_3$}}
+                            }
+                        }
+                    }
+                }
+                child[missing]
+                child{node[state]{$q_2$}}
+            };
+
+            % \coordinate (topRight) at ($(current bounding box.north east) + (2,0)$);
+            % \foreach \y in {0, 1, 2, 3, 4, 5, 6}, \a in {0,1,0,1,1,0,...}{
+            %     \node[label] at ($(topRight) + (0, -\y * 1.5 - 0.5)$) {input \a};
+            % };
+    \end{tikzpicture} \\
+
+    The nodes at each layer represent the states we are in at that time (given the input). At $q_0$, we see $0$ and can only go back to $q_0$
+    At $q_1$, we see $1$ and can go to $q_0$, $q_1$, or slide with $\epsilon$ to $q_2$. And repeat for the remaining binary values in the input string $x$.
+    Once we finish, as long as one state in the final depth is accepting, the string $x$ is accepted. This is the reason why we call this "guessing".
+\end{example}
+
+\section{Unary Language}
+\begin{example} $M_1$
+
+    \begin{tikzpicture}[node distance={2.5cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state] (0) [right of=input] {$q_0$};
+        \node[state,accepting] (1) [above right of=0] {$q_1$};
+        \node[state] (2) [right of=1] {$q_2$};
+        \node[state,accepting] (3) [below right of=0] {$q_3$};
+        \node[state] (4) [right of=3] {$q_4$};
+        \node[state] (5) [below right of=3] {$q_5$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \draw[->] (0) to node[above] {$\epsilon$} (1);
+        \draw[->] (0) to node[above] {$\epsilon$} (3);
+
+        % q_1
+        \draw[->,out=25,in=155] (1) to node[above] {0} (2);
+
+        % q_2
+        \draw[->,out=205,in=335] (2) to node[above] {0} (1);
+
+        % q_3
+        \draw[->] (3) to node[above] {0} (4);
+
+        % q_4
+        \draw[->] (4) to node[right] {0} (5);
+        
+        % q_5
+        \draw[->] (5) to node[below] {0} (3);
+    \end{tikzpicture} \\
+
+    This NFA guesses if the input string length is divisible by either 2 or 3 by guessing to go higher $q_1$ or lower $q_3$.
+\end{example}
+
+\section{Nondeterministic Finite Automaton}
+\subsection{Formal Definition Of A Nondeterministic Finite Automaton}
+\begin{definition}
+    A \textbf{nondeterministic finite automaton} is a 5-tuple $Q,\Sigma,\delta,q_0,F$ where:
+    \begin{itemize}
+        \item $Q$ is a finite set of states
+        \item $\Sigma$ is a finite alphabet
+        \item $\delta :Q\times\Sigma_{\epsilon}\rightarrow \mathcal{P}(Q)$ is the transition function, where $\mathcal{P}(Q)$ is the power set of $Q$
+        \item $q_0\in Q$ is the start state
+        \item $F\subseteq Q$ is the set of accepting states
+    \end{itemize}
+\end{definition}
+
+Note: the only change in the definition compared to a DFA is the transition function $\delta$. $\delta$ is now a set of states.
+
+We say $M$ accepts $w$ if $w$ can be written as $w=y_1...y_n$ such that $y_i\in\Sigma_{\epsilon}$ and there are states $r_0,R_1,...,r_m$ such that $r_0=q_0,r_m\in F,\text{ and }r_{i+1}\in\delta(r_i,y_{i+1})$ for $0\leq i\leq m - 1$.
+
+\subsection{Equivalence Of NFAs and DFAs}
+\begin{corollary}
+    A language is regular if an only if some nondeterminstic finite automaton recognizes it.
+\end{corollary}
+
+\begin{theorem}
+    Every nondeterministic finite automaton has an equivalent deterministic finite automaton. \\
+
+    \textit{Proof Idea.} As a \textbf{corollary}, the set of languages NFAs can accept ($N$) is equal to the set of languages that DFAs can accept ($D$).
+    The first part of the proof is to note that every DFA is an NFA, so $D\subseteq N$.
+    Then to show that $N\subseteq D$, we say for each NFA $N_i\in N$ we can construct an equivalent DFA, implying that $N_i\in D$. Together this implies that $N=D$. \\
+
+    Note: in terms of power of these two computing structures, this proof shows that there is no difference.
+But in terms of size and simplicity, NFAs have the advantage (since an equivalent DFA must have at least $2^k$ states).
+\end{theorem}
+
+\begin{theorem}
+    Let $L_k$ be the regular language over $\{0,1\}$ which contains all strings which have a 1 as the k'th character from the right end of the string.
+    Any DFA that recognizes $L_k$ must contain at least $2^k$ states.
+
+    \begin{proof}
+        Suppose that $D$ is a DFA for $L_k$ containing strictly fewer than $2^k$ states. Then, by the pigeonhole principle, there must be a state $q$ such that two different binary strings of length $k,x,\text{ and }y$, both cause the machine to end in state $q$.
+        But if $x$ and $y$ are different, there is at least one index i such that $x[i]=0$ and $y[i]=1$ or vice versa. But then $x0^{i-1}$ and $y0^{i-1}$ cause the machine to end in the same state, yet one must be accepted and the other must be rejected.
+        This is a contradiction, so our assumption that there was a DFA for $L_k$ with strictly fewer than $2^k$ states is incorrect.
+    \end{proof}
+\end{theorem}
+
+\end{document}

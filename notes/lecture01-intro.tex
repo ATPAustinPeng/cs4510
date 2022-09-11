@@ -1,0 +1,173 @@
+\documentclass[11pt,a4paper]{article}
+
+\input{preamble.tex}
+
+\begin{document}
+\lecture{1: Introduction}{08/23/2022}{Zvi Galil}{Austin Peng}
+\tableofcontents
+
+% TODO: how do i fix this to have new page before every section, but not before the table of contents
+\AddToHook{cmd/section/before}{\newpage}
+
+\section{Topics To Be Familiar With:}
+\subsection{Sets}
+\begin{itemize}
+    \item sets are elements drawn from some universe:
+    \begin{itemize}
+        \item $\mathbb{Z}$ (integers)
+        \item $\mathbb{N}$ (natural numbers)
+        \item $\mathbb{R}$ (real numbers)
+        \item $\mathbb{C}$ (complex numbers)
+    \end{itemize}
+    \item set operations:
+    \begin{itemize}
+        \item union: $A \cup B$
+        \item intersection: $A \cap B$
+        \item complement: $\overline{A}$
+        \item Cartesian product: $A \times b$ (pairs)
+        \item power: $A^k$ (k-tuples)
+    \end{itemize}
+\end{itemize}
+
+\subsection{Functions}
+\begin{itemize}
+    \item functions are mappings from one set to another:
+    \begin{itemize}
+        \item $f: D \rightarrow R$
+        \subitem $f(x) = x^2$
+        \item $f: Z \times Z \rightarrow Z $
+        \subitem $f(x,y) = x + y$
+    \end{itemize}
+\end{itemize}
+
+\subsection{Relations}
+\begin{itemize}
+    \item relation $R$ can be written as $xRy$
+    \begin{itemize}
+        \item \textbf{reflexive}: $xRx$
+        \item \textbf{symmetric}: $xRy \implies yRx$
+        \item \textbf{transitive}: $xRy \text{ and } yRz \implies xRz$
+        \item \textbf{equivalence}: if relation R is reflexive, symmetric, and transitive
+    \end{itemize}
+\end{itemize}
+
+\subsection{Graphs}
+\begin{itemize}
+    \item a graph $G=(V,E)$ has vertices $V$ and edges $E$
+    \item a graph may be directed or undirected
+\end{itemize}
+
+\subsection{Strings}
+\begin{itemize}
+    \item "abc" is a string
+    \item a string is a sequence of symbols from an alphabet $\Sigma$
+    \item $\Sigma^*$ is the set of all strings over $\Sigma$
+    \item $\Sigma^*$ contains the empty string $\epsilon$, all strings of length 1, all strings of length 2, etc.
+\end{itemize}
+
+\subsection{Boolean Logic}
+\begin{itemize}
+    \item 3 main operations: "and" ($\land$), "or" ($\lor$), "not" ($\lnot$)
+    \item these operations are performed on variables and constants (true and false)
+\end{itemize}
+
+\subsection{Proofs}
+\begin{itemize}
+    \item mathematics consists of definitions, statements/lemmas/theorems, and proofs
+    \item 3 common types of proofs:
+    \begin{itemize}
+        \item proof by construction
+        \item proof by contradiction
+        \item proof by induction
+    \end{itemize}
+    \item these operations are performed on variables and constants (true and false)
+\end{itemize}
+
+\section{Finite Automata and (Regular Languages)}
+Consider an automatic door with the inputs $\{\text{F(ront)}, \text{N(either)}, \text{B(oth)}, \text{R(ear)}\}$.
+The door has 2 states: open and closed. The door will only open if there is someone in front and not in the rear (door swings inward).
+If the door is open, but nobody is there, the door will close.
+
+\begin{tikzpicture}[node distance={3cm}, semithick, main/.style = {draw, circle}]
+    \node[state] (0) {closed};
+    \node[state] (1) [right of=0] {open};
+
+    % closed
+    \path (0) edge [loop left] node {N,B,R} (0);
+    \draw[->,out=15,in=165] (0) to node[above] {F} (1);
+
+    % open
+    \path (1) edge [loop right] node {F,B,R} (1);
+    \draw[->,out=195,in=345] (1) to node[below] {N} (0);
+\end{tikzpicture}
+
+\begin{example} $M_1$
+
+    \begin{tikzpicture}[node distance={3cm}, semithick, main/.style = {draw, circle}]
+        \node[name=input] {};
+        \node[state] (0) [right of=input]{$q_0$};
+        \node[state,accepting] (1) [right of=0] {$q_1$};
+        \node[state] (2) [right of=1] {$q_2$};
+
+        % q_0
+        \draw[->] (input) -- (0);
+        \path (0) edge [loop above] node {0} (0);
+        \draw[->] (0) to node[above] {1} (1);
+
+        % q_1
+        \path (1) edge [loop above] node {1} (1);
+        \draw[->,out=15,in=165] (1) to node[above] {1} (2);
+        
+        % q_2
+        \draw[->,out=195,in=345] (2) to node[below] {0, 1} (1);
+    \end{tikzpicture}
+\end{example}
+
+\begin{itemize}
+    \item $q_0$ is the starting state
+    \item $q_1$ is the accepting statements
+    \item all transitions ($\delta=0,1$) are defined for all states
+    \item let x be a binary string $1101$, $M_1$ will accept $x$ because it ends at $q_1$
+    \item $L(M_1)=$ all $x$ such s.t $M_1$ accepts $x$ if $x$ has a 1 AND either ends with a 1 or with an even number of 0s
+\end{itemize}
+
+\subsection{Formal Definition Of A Deterministic Finite Automaton}
+\begin{definition}
+    A deterministic finite automaton is a 5-tuple $M=(Q, \Sigma, \delta, q_0, F)$ where:
+    \begin{itemize}
+        \item $Q$ is a finite set called the states
+        \item $\Sigma$ is a finite set called the alphabet
+        \item $\delta: Q\times\Sigma\rightarrow Q$ is the transition function
+        \item $q_0$ is the initial state
+        \item $F\subseteq Q$ is the accepting states
+    \end{itemize}
+    Note: $\delta(q,a)=p$ means that if DFA is in state $q$ and sees $a$, it goes to state $p$
+\end{definition}
+
+\newpage
+\subsection{Formal Definition Of Computation}
+\begin{definition}
+    A \textbf{computation} of a deterministic finite automaton (DFA) $M$ on an input string $x=x_1,...,x_n\in\Sigma^*$ is a sequence of states $q_0,...,q_n\in Q$ s.t. for $i=0,...,n-1$ $\delta(q_i,x_{i+1})=q_{i+1}$.
+    We say that $M$ accepts $x$ if $q_n\in F$.
+    If $q_n\notin F$, then we say $M$ rejects $x$.
+\end{definition}
+
+\subsection{Formal Definition Of A Language}
+\begin{definition}
+    The \textbf{language} of $M$ is defined as the set $\{x\in\Sigma^*: M\text{ accepts }x\}$.
+    A language is a set of strings.
+\end{definition}
+
+\begin{example}
+    $\emptyset,\{\epsilon\}$ are both langauges.
+\end{example}
+
+\begin{definition}
+    A language $L$ is called \textbf{regular} if there is a DFA accepting $L$.
+\end{definition}
+
+\begin{example}
+    $L_w=\{w\}$ is regular. $L'_w=\{\text{all strings that end in }w\}$ is also regular.
+\end{example}
+
+\end{document}
