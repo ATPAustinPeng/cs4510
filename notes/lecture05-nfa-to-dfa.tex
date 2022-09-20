@@ -84,4 +84,96 @@
     NFA with $n$ states $\rightarrow$ DFA with $2^n$ states.
 \end{example}
 
+\section{Closure Under Regular Operations}
+\begin{theorem}
+    The class of regular languages is closed under the union operation. \\
+
+    \textit{Proof Idea.} We have regular languages $A_1$ and $A_2$ and want to prove that $A_1\cup A_2$ is regular.
+    The idea is to take 2 NFAs, $N_1$ and $N_2$, that accept $A_1$ and $A_2$ respectively, and combine them into a single new NFA $N$.
+
+    \includegraphics[width=\linewidth / 2]{lecture05-union-closure-nfa-proof-idea.png}
+    \begin{proof}
+        Let $N_1=(Q_1,\Sigma,\delta_1,q_1,F_1)$ recognize $A_1$ and $N_2=(Q_2,\Sigma,\delta_2,q_2,F_2)$ recognize $A_2$. \\
+
+        Construct $N=(Q,\Sigma,\delta,q_0,F)$ to recognize $A_1\cup A_2$.
+
+        \begin{enumerate}
+            \item $Q=\{q_0\}\cup Q_1\cup Q_2$
+            \subitem The states of $N$ are all the states of $N_1$ and $N_2$ with the addition of a new start state $q_0$.
+            \item The state $q_0$ is the start state of $N$.
+            \item The set of accepting states $F=F_1\cup F_2$.
+            \subitem The accepting states of $N$ are all the accepting states of $N_1$ and $N_2$. That way, $N$ accepts if either $N_1$ or $N_2$ accepts.
+            \item Define $\delta$ so that for any $q\in Q$ and any $a\in\Sigma_{\epsilon}$,
+            $$\delta(q,a)=\begin{cases}
+                \delta_1(q,a) & q\in Q_1 \\
+                \delta_2(q,a) & q\in Q_2 \\
+                \{q_1,q_2\} & q=q_0\text{ and }a=\epsilon \\
+                \emptyset & q=q_0\text{ and }a\neq\epsilon
+            \end{cases}$$
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+\begin{theorem}
+    The class of regular languages is closed under the concatenation operation. \\
+
+    \textit{Proof Idea.} We have regular languages $A_1$ and $A_2$ and want to prove that $A_1\circ A_2$ is regular.
+    The idea is to take 2 NFAs, $N_1$ and $N_2$, and combine them into a single new NFA $N$ (like how we did in the union closure proof, but with a few changes).
+
+    \includegraphics[width=\linewidth / 2]{lecture05-concat-closure-nfa-proof.png}
+
+    \begin{proof}
+        Let $N_1=(Q_1,\Sigma,\delta_1,q_1,F_1)$ recognize $A_1$ and $N_2=(Q_2,\Sigma,\delta_2,q_2,F_2)$ recognize $A_2$. \\
+
+        Construct $N=(Q,\Sigma,\delta,q_0,F)$ to recognize $A_1\circ A_2$.
+
+        \begin{enumerate}
+            \item $Q=Q_1\cup Q_2$
+            \subitem The states of $N$ are all the states of $N_1$ and $N_2$.
+            \item The state $q_1$ is the start state of $N_1$.
+            \item The set of accepting states $F_2$ are the same as the accepting states of $N_2$.
+            \item Define $\delta$ so that for any $q\in Q$ and any $a\in\Sigma_{\epsilon}$,
+            $$\delta(q,a)=\begin{cases}
+                \delta_1(q,a) & q\in Q_1\text{ and }q\notin F_1 \\
+                \delta_1(q,a) & q\in F_1\text{ and }a\neq\epsilon \\
+                \delta_1(q,a)\cup\{q_2\} & q\in F_1\text{ and }a\in\epsilon \\
+                \delta_2(q,a) & q\in Q_2
+            \end{cases}$$
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
+\begin{theorem}
+    The class of regular languages is closed under the Kleene star operation. \\
+
+    \textit{Proof Idea.} We have a regular language $A$ and want to prove that $A_1^*$ also is regular. We take an NFA $N_1$ for $A_1$ and modify it to recognize $A_1^*$ as shown.
+    The resulting NFA $N$ will accept its input whenever it can be broken into several pieces and $N$ accepts each piece. \\
+
+    We can construct $N$ like $N_1$ with additional $\epsilon$ arrows returning to the start state from the accepting states.
+    This way when the processing gets to the end of a piece that $N_1$ accepts, the machine $N$ has the option of jumping back to the start state to try to read another piece that $N_1$ accepts.
+
+    \includegraphics[width=\linewidth * 2 / 3]{lecture05-star-closure-nfa-proof.png}
+
+    \begin{proof}
+        Let $N_1=(Q_1,\Sigma,\delta_1,q_1,F_1)$ recognize $A_1$. Construct $N=(Q,\Sigma,\delta,q_0,F)$ to recognize $A_1^*$.
+
+        \begin{enumerate}
+            \item $Q=\{q_0\}\cup Q_1$
+            \subitem The states of $N$ are the states of $N_1$ plus a new start state.
+            \item The state $q_0$ is the new start state.
+            \item $F=\{q_0\}\cup F_1$
+            \subitem The accepting states are the old accepting states plus the new start state.
+            \item Define $\delta$ so that for any $q\in Q$ and any $a\in\Sigma_{\epsilon}$,
+            $$\delta(q,a)=\begin{cases}
+                \delta_1(q,a) & q\in Q_1\text{ and }q\notin F_1 \\
+                \delta_1(q,a) & q\in F_1\text{ and }a\notin\epsilon \\
+                \delta_1(q,a)\cup\{q_1\} & q\in F_1\text{ and }a\in\epsilon \\
+                \{q_1\} & q=q_0\text{ and }a\in\epsilon \\
+                \emptyset & q=q_0\text{ and }a\notin\epsilon
+            \end{cases}
+            $$
+        \end{enumerate}
+    \end{proof}
+\end{theorem}
+
 \end{document}

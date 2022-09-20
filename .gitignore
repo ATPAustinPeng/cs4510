@@ -1,5 +1,18 @@
-*.gz
-*.aux
-*.log
-*.out
-*.toc
+# *.gz
+# *.aux
+# *.log
+# *.out
+# *.toc
+# *.fdb_latexmk
+
+# Ignore everything
+*
+
+# But not these files...
+!.gitignore
+!*.tex
+!*.pdf
+!*.png
+
+# ...ignore even if they are in subdirectories
+!*/
