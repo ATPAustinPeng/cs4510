@@ -1179,9 +1179,18 @@ A GNFA accepts a string $w$ in $\Sigma^*$ if $w=w_1w_2...w_k$, where each $w_i$ 
     \end{proof}
 \end{claim}
 
+\subsubsection{Example: Building NFA From A Regular Expression}
 \begin{example}
-    % TODO 1.58
-    % TODO 1.68
+    Build an NFA for the regular expression $(a\cup b)^*aba$.
+
+    \includegraphics[width=\linewidth]{lecture06-build-nfa-from-reg-exp.png}
+\end{example}
+
+\subsubsection{Example: Building Regular Expression From A DFA}
+\begin{example}
+    Beginning with a 3-state DFA, convert the DFA to a regular expression (using GNFAs).
+
+    \includegraphics[width=\linewidth]{lecture06-dfa-to-reg-exp-gnfa.png}
 \end{example}
 
 
@@ -1239,7 +1248,7 @@ A GNFA accepts a string $w$ in $\Sigma^*$ if $w=w_1w_2...w_k$, where each $w_i$ 
 
 \subsubsection{Examples: Using Pumping Lemma To Prove Nonregularity}
 \begin{example}
-    Consider the language $B$ be the language $\{0^n1^n\mid n\geq 0\}$.
+    Consider the language $B=\{0^n1^n\mid n\geq 0\}$.
 
     \begin{proof}
         Assume that $B$ is regular. \\
@@ -1257,7 +1266,7 @@ A GNFA accepts a string $w$ in $\Sigma^*$ if $w=w_1w_2...w_k$, where each $w_i$ 
 \end{example}
 
 \begin{example}
-    Let $C=\{w\mid w\text{has an equal number of $0$s and $1$s}\}$. Prove that $C$ is not regular.
+    Let $C=\{w\mid w\text{ has an equal number of $0$s and $1$s}\}$. Prove that $C$ is not regular.
 
     \begin{proof}
         Assume that $C$ is regular. \\
@@ -1270,7 +1279,8 @@ A GNFA accepts a string $w$ in $\Sigma^*$ if $w=w_1w_2...w_k$, where each $w_i$ 
         BUT THIS IS WRONG! CONDITION 3 OF THE PUMPING LEMMA COMES INTO PLAY. \\
         
         By pumping $s$, it must be divided so that $|xy|\leq p$. That means the string we selected $s=0^p1^p$ cannot be pumped.
-        If $|xy|\leq p$, then $y$ must consist only of $0$s, so $xyyz\notin C$. \\
+        If we select $y=0^n, 0<n\geq p$. Then $s=0^{p-n}0^n1^p$. However, if $i > 0$, then $0^{p-n}0^{i\cdot n}1^p=0^{p+n(i-1)}1^p$.
+        This is a contradiction since $p+n(i-1)\neq p$ so $xy^iz\notin C$. \\
 
         $s$ cannot be pumped and therefore $C$ is not regular. \\
     \end{proof}
@@ -1282,7 +1292,7 @@ A GNFA accepts a string $w$ in $\Sigma^*$ if $w=w_1w_2...w_k$, where each $w_i$ 
     \begin{proof}
         Assume that $F$ is regular. \\
 
-        Let $s$ be the string $0^p10^p1$. Because $s$ is a member of $F$ and $s$ has length more than $p$, the pupming lemma guarantees that $s$ can be split into 3 pieces $s=xyz$ satisfying the pumping lemma. \\
+        Let $s$ be the string $0^p10^p1$. Because $s$ is a member of $D$ and $s$ has length more than $p$, the pupming lemma guarantees that $s$ can be split into 3 pieces $s=xyz$ satisfying the pumping lemma. \\
 
         Condition 3 of the pumping lemma is important again. We cannot let $x$ and $z$ be of length 0 because of condition 3.
         This means that $y$ must consist of only $0$s, so $xyyz\notin D$. \\

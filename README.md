@@ -1,20 +1,18 @@
 # cs4510
 
-| Lecture # | Topic                         | Notes Complete? |
-| --------- | ----------------------------- | --------------- |
-| 1         | Introduction                  |                 |
-| 2         | Deterministic Finite Automata |                 |
-| 3         | Operations On Languages       |                 |
-| 4         | Nondeterminism                |                 |
-| 5         | NFAs To DFAs                  |                 |
-| 6         | Regular Expressions           |                 |
-| 7         | Nonregular Languages          |                 |
-| 8         | Context-Free Languages        | YES             |
+| Lecture # | Topic                         | Notes Complete?                          |
+| --------- | ----------------------------- | ---------------------------------------- |
+| 1         | Introduction                  | YES (view exam1-compiled.pdf)            |
+| 2         | Deterministic Finite Automata | YES (view exam1-compiled.pdf)            |
+| 3         | Operations On Languages       | YES (view exam1-compiled.pdf)            |
+| 4         | Nondeterminism                | YES (view exam1-compiled.pdf)            |
+| 5         | NFAs To DFAs                  | YES (view exam1-compiled.pdf)            |
+| 6         | Regular Expressions           | YES (view exam1-compiled.pdf)            |
+| 7         | Nonregular Languages          | YES (view exam1-compiled.pdf)            |
+| 8         | Context-Free Languages        | YES (view exam1-compiled.pdf)            |
+| 9         | Review: Practice Exam 1       | YES (check resources/practice-exam1.pdf) |
+| 10        | Exam 1 (NO CLASS)             | N/A                                      |
 
--   where do I add in regular language closed under union, concatenation, and Kleene star proofs? (lecture 3 or lecture 5?)
--   finish notes on lecture 6 (the claim for the proof...)
+## TODO
 
--   consider combining notes for this chapter into 1 latex file with TOC?? do that and compare with the separate notes I have now
--   double check latex notes with my notes and course notes, then read textbook and understand their notes
-
--   make itemize and enumarate line spacing smaller
+-   QOL: make itemize/enumarate line spacing smaller
